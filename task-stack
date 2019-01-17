@@ -22,23 +22,50 @@ while True:
    fd.truncate()
    continue
   print(card)
-  choice = input("[s] send to back of stack [a] add new task and send to back of stack [d] send card to done pile [l] search web for contents of card: ")
-  if choice == "s":
+  choice = input("""
+  [n] send to back of stack
+  [a] add new task and send to back of stack
+  [d] send card to done pile
+  [l] search web for contents of card
+  [s] snooze card
+  [u] unsnooze card
+  [r] delete card
+  [q] quit
+  """)
+  def remove():
+   fd.write(rest)
+   fd.truncate()
+  if choice == "n":
    fd.write(rest + "\n" + card.strip())
    fd.truncate()
   elif choice == "a":
    new_card = input(":")
    fd.write(rest + "\n" + card.strip() + "\n" + new_card.strip())
    fd.truncate()
+  elif choice == "r":
+   remove()
+  elif choice == "s":
+   remove()
+   with open(file + ".snooze", "a+") as dd:
+    dd.write(card.strip() + "\n")
+  elif choice == "u":
+   if os.path.isfile(file + ".snooze"):
+    with open(file + ".snooze", "r+") as dd:
+     snoozed_card = dd.readline()
+     if snoozed_card:
+      rest = dd.read()
+     else:
+      rest = ""
+     dd.seek(0)
+     dd.write(rest)
+     dd.truncate()
+    fd.write(snoozed_card.strip()+"\n"+card.strip()+"\n"+rest)
+    fd.truncate()
   elif choice == "d":
-   fd.write(rest)
-   fd.truncate()
-   with open(file+".done", "a+") as dd:
+   remove()
+   with open(file + ".done", "a+") as dd:
     dd.write(card.strip() + "\n")
   elif choice == "l": 
    subprocess.call(["chromium", "https://duckduckgo.com/?q="+card.strip()])
   elif choice == "q":
    sys.exit()
-   
-   
-  
