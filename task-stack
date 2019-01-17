@@ -39,6 +39,7 @@ def main():
   [s] snooze card
   [u] unsnooze card
   [r] delete card
+  [c] get statistics on tasks
   [q] quit
 
 > """)
@@ -97,6 +98,14 @@ def main():
      dd.write(card.strip() + " " + now() + "\n")
    elif choice == "l":
     subprocess.call(["chromium", "https://duckduckgo.com/?q="+card.strip()])
+   elif choice == "c":
+    active_tasks = 1 + len(rest.split("\n"))
+    with open(file + ".snooze") as dd:
+     snoozed_tasks = len(dd.read().split("\n"))
+    with open(file + ".done") as dd:
+     done_tasks = len(dd.read().split("\n"))
+    print("Active tasks:", active_tasks, "Snoozed tasks:", snoozed_tasks, "Completed tasks:", done_tasks, "\n")
+    input("Press ENTER to continue\n")
    elif choice == "q":
     sys.exit()
 
