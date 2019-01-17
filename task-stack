@@ -2,70 +2,97 @@
 import sys
 import os
 import subprocess
+import datetime
 
 file = sys.argv[1]
 
-while True:
- os.system('clear')
- if not os.path.isfile(file):
-  with open(file, "w") as fd:
-   fd.write("-")
- with open(file, "r+") as fd:
-  card = fd.readline()
-  if card:
-   rest = fd.read()
-  else:
-   rest = ""
-  fd.seek(0)
-  if card == "\n":
-   fd.write(rest.strip())
-   fd.truncate()
-   continue
-  print(card)
-  choice = input("""
+def main():
+ just_added = None
+
+ while True:
+  os.system('clear')
+  if just_added:
+   print("Just added", just_added, "\n\n")
+  if not os.path.isfile(file):
+   with open(file, "w") as fd:
+    fd.write("-")
+  with open(file, "r+") as fd:
+   card = fd.readline()
+   if card:
+    rest = fd.read()
+   else:
+    rest = ""
+   fd.seek(0)
+   if card == "\n":
+    fd.write(rest.strip())
+    fd.truncate()
+    continue
+   print(card)
+   choice = input("""
   [n] send to back of stack
   [a] add new task and send to back of stack
+  [f] add new task and snooze current one
   [d] send card to done pile
   [l] search web for contents of card
   [s] snooze card
   [u] unsnooze card
   [r] delete card
   [q] quit
-  """)
-  def remove():
-   fd.write(rest)
-   fd.truncate()
-  if choice == "n":
-   fd.write(rest + "\n" + card.strip())
-   fd.truncate()
-  elif choice == "a":
-   new_card = input(":")
-   fd.write(rest + "\n" + card.strip() + "\n" + new_card.strip())
-   fd.truncate()
-  elif choice == "r":
-   remove()
-  elif choice == "s":
-   remove()
-   with open(file + ".snooze", "a+") as dd:
-    dd.write(card.strip() + "\n")
-  elif choice == "u":
-   if os.path.isfile(file + ".snooze"):
-    with open(file + ".snooze", "r+") as dd:
-     snoozed_card = dd.readline()
-     if snoozed_card:
-      rest = dd.read()
-     else:
-      rest = ""
-     dd.seek(0)
-     dd.write(rest)
-     dd.truncate()
-    fd.write(snoozed_card.strip()+"\n"+card.strip()+"\n"+rest)
+
+> """)
+   def remove():
+    fd.write(rest)
     fd.truncate()
-  elif choice == "d":
-   remove()
-   with open(file + ".done", "a+") as dd:
-    dd.write(card.strip() + "\n")
-  elif choice == "l": 
-   subprocess.call(["chromium", "https://duckduckgo.com/?q="+card.strip()])
-  elif choice == "q":
-   sys.exit()
+   def now():
+    return datetime.datetime.now().strftime("%Y/%m/%d %H:%M")
+   def snooze():
+    remove()
+    with open(file + ".snooze", "a+") as dd:
+     dd.write(card.strip() + "\n")
+   def add_card():
+    new_card = input(":")
+    nonlocal just_added
+    just_added = new_card
+    fd.write(rest + "\n" + card.strip() + "\n" + now() + " " + new_card.strip())
+    fd.truncate()
+   if len(choice) > 1 and just_added:
+    fd.write(rest + "\n" + card.strip() + "↵" + choice.strip())
+    fd.truncate()
+    just_added += "↵" + choice.strip()
+   else:
+    just_added = None
+   if choice == "n":
+    fd.write(rest + "\n" + card.strip())
+    fd.truncate()
+   elif choice == "a":
+    add_card()
+   elif choice == "r":
+    remove()
+   elif choice == "s":
+    snooze()
+   elif choice == "f":
+    snooze()
+    add_card()
+   elif choice == "u":
+    if os.path.isfile(file + ".snooze"):
+     with open(file + ".snooze", "r+") as dd:
+      snoozed_card = dd.readline()
+      if snoozed_card:
+       rest = dd.read()
+      else:
+       rest = ""
+      dd.seek(0)
+      dd.write(rest)
+      dd.truncate()
+     fd.write(snoozed_card.strip()+"\n"+card.strip()+"\n"+rest)
+     fd.truncate()
+   elif choice == "d":
+    remove()
+    with open(file + ".done", "a+") as dd:
+     dd.write(card.strip() + " " + now() + "\n")
+   elif choice == "l":
+    subprocess.call(["chromium", "https://duckduckgo.com/?q="+card.strip()])
+   elif choice == "q":
+    sys.exit()
+
+main()
