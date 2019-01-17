@@ -1,0 +1,44 @@
+#!/usr/bin/python3
+import sys
+import os
+import subprocess
+
+file = sys.argv[1]
+
+while True:
+ os.system('clear')
+ if not os.path.isfile(file):
+  with open(file, "w") as fd:
+   fd.write("-")
+ with open(file, "r+") as fd:
+  card = fd.readline()
+  if card:
+   rest = fd.read()
+  else:
+   rest = ""
+  fd.seek(0)
+  if card == "\n":
+   fd.write(rest.strip())
+   fd.truncate()
+   continue
+  print(card)
+  choice = input("[s] send to back of stack [a] add new task and send to back of stack [d] send card to done pile [l] search web for contents of card: ")
+  if choice == "s":
+   fd.write(rest + "\n" + card.strip())
+   fd.truncate()
+  elif choice == "a":
+   new_card = input(":")
+   fd.write(rest + "\n" + card.strip() + "\n" + new_card.strip())
+   fd.truncate()
+  elif choice == "d":
+   fd.write(rest)
+   fd.truncate()
+   with open(file+".done", "a+") as dd:
+    dd.write(card.strip() + "\n")
+  elif choice == "l": 
+   subprocess.call(["chromium", "https://duckduckgo.com/?q="+card.strip()])
+  elif choice == "q":
+   sys.exit()
+   
+   
+  
