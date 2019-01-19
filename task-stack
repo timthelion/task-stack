@@ -61,12 +61,14 @@ def main():
     just_added = new_card
     fd.write(rest + "\n" + card.strip() + "\n" + now() + " " + new_card.strip())
     fd.truncate()
+
    if len(choice) > 1 and just_added:
     fd.write(rest + "\n" + card.strip() + "↵" + choice.strip())
     fd.truncate()
     just_added += "↵" + choice.strip()
-   else:
-    just_added = None
+    continue
+
+   just_added = None
    if choice == "n":
     fd.write(rest + "\n" + card.strip())
     fd.truncate()
@@ -84,11 +86,11 @@ def main():
      with open(file + ".snooze", "r+") as dd:
       snoozed_card = dd.readline()
       if snoozed_card:
-       rest = dd.read()
+       snoozed_rest = dd.read()
       else:
-       rest = ""
+       snoozed_rest = ""
       dd.seek(0)
-      dd.write(rest)
+      dd.write(snoozed_rest)
       dd.truncate()
      fd.write(snoozed_card.strip()+"\n"+card.strip()+"\n"+rest)
      fd.truncate()
@@ -99,11 +101,11 @@ def main():
    elif choice == "l":
     subprocess.call(["chromium", "https://duckduckgo.com/?q="+card.strip()])
    elif choice == "c":
-    active_tasks = 1 + len(rest.split("\n"))
+    active_tasks = len(rest.split("\n"))
     with open(file + ".snooze") as dd:
-     snoozed_tasks = len(dd.read().split("\n"))
+     snoozed_tasks = len(dd.read().split("\n")) - 1
     with open(file + ".done") as dd:
-     done_tasks = len(dd.read().split("\n"))
+     done_tasks = len(dd.read().split("\n")) - 1
     print("Active tasks:", active_tasks, "Snoozed tasks:", snoozed_tasks, "Completed tasks:", done_tasks, "\n")
     input("Press ENTER to continue\n")
    elif choice == "q":
