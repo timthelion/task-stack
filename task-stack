@@ -57,6 +57,8 @@ def main():
      dd.write(card.strip() + "\n")
    def add_card():
     new_card = input(":")
+    if new_card == "":
+     return
     nonlocal just_added
     just_added = new_card
     fd.write(rest + "\n" + card.strip() + "\n" + now() + " " + new_card.strip())
