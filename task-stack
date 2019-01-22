@@ -101,7 +101,7 @@ def main():
     with open(file + ".done", "a+") as dd:
      dd.write(card.strip() + " " + now() + "\n")
    elif choice == "l":
-    subprocess.call(["chromium", "https://duckduckgo.com/?q="+card.strip()])
+       subprocess.call(["chromium", "https://duckduckgo.com/?q="+" ".join(card.strip().split()[2:])])
    elif choice == "c":
     active_tasks = len(rest.split("\n"))
     with open(file + ".snooze") as dd:
